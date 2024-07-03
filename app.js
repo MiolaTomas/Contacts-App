@@ -21,10 +21,11 @@ require('dotenv').config();
 
 
 
-//Router
-app.get('/about', (req,res)=>{
-  res.render('home');
-})
+
+const routes = require('./server/routes/flavours');
+app.use('/', routes);
+
+
 
 
 
