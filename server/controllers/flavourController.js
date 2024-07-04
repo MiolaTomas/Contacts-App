@@ -60,7 +60,7 @@ exports.create = (req, res) =>{
     connection.query('INSERT INTO Flavors SET nombre = ?', [nombre],(err, rows) =>{
       connection.release();
       if(!err){
-        res.render('add-flavour');
+        res.render('add-flavor');
       }else{
         console.log(err);
       }
@@ -69,5 +69,5 @@ exports.create = (req, res) =>{
 }
 
 exports.form = (req, res) =>{
-  res.render('add-flavour');
+  res.render('add-flavor');
 }

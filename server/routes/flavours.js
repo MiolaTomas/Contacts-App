@@ -3,9 +3,9 @@ const router = express.Router();
 const flavourController = require('../controllers/flavourController');
 
 
-router.get("/flavour", flavourController.view);
+router.get("/flavor", flavourController.view);
 router.post("/", flavourController.find);
-router.get("/flavour/add", flavourController.form);
-router.post("/flavour/add", flavourController.create);
+router.get("/flavor/add", flavourController.form);
+router.post("/flavor/add", flavourController.create);
 
 module.exports = router;
