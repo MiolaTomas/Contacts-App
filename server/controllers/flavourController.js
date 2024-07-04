@@ -53,6 +53,9 @@ exports.find = (req, res) =>{
 
 exports.create = (req, res) =>{
   const { nombre } = req.body;
+  if (!nombre) {
+    return res.render('add-flavor', { danger: 'Flavor name cannot be empty!' });
+  }
   pool.getConnection((err, connection) =>{
     if(err) throw err; // not connected!
     console.log('Connected as ID ' + connection.threadId);

@@ -11,6 +11,11 @@
 </div>
 {{/if}}
 
+{{#if danger}}
+<div class="alert alert-danger" role="alert">
+  {{danger}}
+</div>
+{{/if}}
 
 <form method="POST" action="/flavor/add" novalidate>
   <div class="mb-3">
