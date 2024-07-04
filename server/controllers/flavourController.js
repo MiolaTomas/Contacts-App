@@ -60,7 +60,7 @@ exports.create = (req, res) =>{
     connection.query('INSERT INTO Flavors SET nombre = ?', [nombre],(err, rows) =>{
       connection.release();
       if(!err){
-        res.render('add-flavor');
+        res.render('add-flavor', { alert: 'User added successfully!'});
       }else{
         console.log(err);
       }

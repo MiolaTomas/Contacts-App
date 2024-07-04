@@ -5,6 +5,13 @@
   </ol>
 </nav>
 
+{{#if alert}}
+<div class="alert alert-success" role="alert">
+  {{alert}}
+</div>
+{{/if}}
+
+
 <form method="POST" action="/flavor/add" novalidate>
   <div class="mb-3">
     <label for="exampleInputPassword1" class="form-label">Nombre</label>
