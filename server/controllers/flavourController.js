@@ -162,3 +162,24 @@ exports.update = (req, res) => {
     });
   });
 };
+
+//Delete
+exports.delete = (req, res) =>{
+  pool.getConnection((err, connection) =>{
+    if(err) throw err; // not connected!
+    console.log('Connected as ID ' + connection.threadId);
+
+    // Flavour connection
+    connection.query('DELETE FROM Flavors WHERE id_sabor = ?', [req.params.id], (err, rows) =>{
+      connection.release();
+      if(!err){
+        // res.render('edit-flavor', { rows });
+        res.redirect('/flavor');
+      }else{
+        console.log(err);
+      }
+      console.log("Data from flavors table:");
+      console.log(rows);
+    });
+  })
+}
