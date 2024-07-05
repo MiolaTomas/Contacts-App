@@ -13,6 +13,10 @@ module.exports.signupGet = (req, res) =>{
   res.render('auth/signup.hbs');
 }
 
+module.exports.loginGet = (req, res) =>{
+  res.render("auth/login.hbs")
+}
+
 module.exports.signupPost = (req, res) =>{
   const { email, password } = req.body;
   const hashedpassword = bcrypt.hashSync(password, 10);
@@ -23,7 +27,8 @@ module.exports.signupPost = (req, res) =>{
     connection.query('INSERT INTO users SET email = ?, password = ?', [email, hashedpassword],(err, rows) =>{
       connection.release();
       if(!err){
-        res.status(201).json(rows);
+        // res.status(201).json(rows);
+        res.redirect("/login");
       }else{
         res.status(400).send('error, user not created');
       }
@@ -31,9 +36,6 @@ module.exports.signupPost = (req, res) =>{
   })
 }
 
-module.exports.loginGet = (req, res) =>{
-  res.send("loginGet")
-}
 
 module.exports.loginPost = (req, res) => {
   const { email, password } = req.body;
@@ -63,8 +65,8 @@ module.exports.loginPost = (req, res) => {
 
       if (isValidPassword) {
         // Passwords match, handle successful login
-        res.status(200).json(user);
-        console.log("user logged in succesfully!")
+        // res.status(200).json(user);
+        res.redirect("/flavor");
       } else {
         // Passwords do not match
         res.status(401).send('Invalid password');
