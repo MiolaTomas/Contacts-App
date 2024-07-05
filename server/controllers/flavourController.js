@@ -174,7 +174,28 @@ exports.delete = (req, res) =>{
       connection.release();
       if(!err){
         // res.render('edit-flavor', { rows });
-        res.redirect('/flavor');
+        res.render('home', { alert: 'User deleted successfully!' });
+      }else{
+        console.log(err);
+      }
+      console.log("Data from flavors table:");
+      console.log(rows);
+    });
+  })
+}
+
+
+//individualView
+exports.individualView = (req, res) =>{
+  pool.getConnection((err, connection) =>{
+    if(err) throw err; // not connected!
+    console.log('Connected as ID ' + connection.threadId);
+
+    // Flavour connection
+    connection.query('SELECT * FROM Flavors WHERE id_sabor = ?', [req.params.id], (err, rows) =>{
+      connection.release();
+      if(!err){
+        res.render('view-flavor', { rows });
       }else{
         console.log(err);
       }
