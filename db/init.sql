@@ -5,10 +5,8 @@ CREATE TABLE Flavors(
     nombre VARCHAR(100) NOT NULL
 );
 
--- Inserting sample data into Flavors table
-INSERT INTO Flavors (nombre) VALUES ('Vanilla');
-INSERT INTO Flavors (nombre) VALUES ('Chocolate');
-INSERT INTO Flavors (nombre) VALUES ('Strawberry');
-INSERT INTO Flavors (nombre) VALUES ('Mint');
-INSERT INTO Flavors (nombre) VALUES ('Coffee');
-INSERT INTO Flavors (nombre) VALUES ('Strawberry');
+CREATE TABLE users (
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    PRIMARY KEY (email)
+);

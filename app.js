@@ -25,6 +25,9 @@ require('dotenv').config();
 const routes = require('./server/routes/flavours');
 app.use('/', routes);
 
+const authRoutes = require('./server/routes/authRoutes');
+app.use('/', authRoutes);
+
 
 
 
