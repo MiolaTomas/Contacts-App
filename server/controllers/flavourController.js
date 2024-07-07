@@ -172,8 +172,7 @@ exports.delete = (req, res) =>{
     connection.query('DELETE FROM Flavors WHERE id_sabor = ?', [req.params.id], (err, rows) =>{
       connection.release();
       if(!err){
-        // res.render('edit-flavor', { rows });
-        res.render('home', { alert: 'User deleted successfully!' });
+        res.redirect('/flavor');
       }else{
         console.log(err);
       }

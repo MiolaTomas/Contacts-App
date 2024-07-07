@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const flavourController = require('../controllers/flavourController');
+const { validateToken } = require('../middleware/middleware');
 
 
-router.get("/flavor", flavourController.view);
+router.get("/flavor", validateToken, flavourController.view);
 router.post("/", flavourController.find);
 router.get("/flavor/add", flavourController.form);
 router.post("/flavor/add", flavourController.create);

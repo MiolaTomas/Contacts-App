@@ -1,5 +1,6 @@
 const mysql = require('mysql2');
 const bcrypt = require('bcrypt');
+const { sign, verify} = require('jsonwebtoken');
 
 const pool = mysql.createPool({
   connectionLimit: 100,
@@ -28,7 +29,7 @@ module.exports.signupPost = (req, res) =>{
       connection.release();
       if(!err){
         // res.status(201).json(rows);
-        res.redirect("/login");
+        res.redirect("/flavor");
       }else{
         res.status(400).send('error, user not created');
       }
@@ -64,8 +65,9 @@ module.exports.loginPost = (req, res) => {
       const isValidPassword = bcrypt.compareSync(password, user.password);
 
       if (isValidPassword) {
-        // Passwords match, handle successful login
-        // res.status(200).json(user);
+        const accessToken = sign(user, process.env.JWT_TOKEN, { expiresIn: '1h' }); // Token expires in 1 hour
+        res.cookie('accessToken', accessToken, { maxAge: maxAge, httpOnly: true });
+        console.log("Token created by the login method: " +  accessToken);
         res.redirect("/flavor");
       } else {
         // Passwords do not match
