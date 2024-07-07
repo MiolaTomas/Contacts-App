@@ -18,25 +18,52 @@ module.exports.loginGet = (req, res) =>{
   res.render("auth/login.hbs")
 }
 
-module.exports.signupPost = (req, res) =>{
+// module.exports.signupPost = (req, res) =>{
+//   const { email, password } = req.body;
+//   const hashedpassword = bcrypt.hashSync(password, 10);
+
+//   pool.getConnection((err, connection) =>{ 
+//     if(err) throw err; // not connected!
+//     console.log('Connected as ID ' + connection.threadId);
+//     connection.query('INSERT INTO users SET email = ?, password = ?', [email, hashedpassword],(err, rows) =>{
+//       connection.release();
+//       if(!err){
+//         res.redirect("/flavor");
+//       }else{
+//         res.status(400).send('error, user not created');
+//       }
+//     });
+//   })
+// }
+module.exports.signupPost = (req, res) => {
   const { email, password } = req.body;
-  const hashedpassword = bcrypt.hashSync(password, 10);
+  const hashedPassword = bcrypt.hashSync(password, 10);
 
-  pool.getConnection((err, connection) =>{ 
-    if(err) throw err; // not connected!
-    console.log('Connected as ID ' + connection.threadId);
-    connection.query('INSERT INTO users SET email = ?, password = ?', [email, hashedpassword],(err, rows) =>{
-      connection.release();
-      if(!err){
-        // res.status(201).json(rows);
-        res.redirect("/flavor");
-      }else{
-        res.status(400).send('error, user not created');
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error getting connection from pool', err);
+      return res.status(500).send('Database error');
+    }
+
+    connection.query('INSERT INTO users SET email = ?, password = ?', [email, hashedPassword], (err, rows) => {
+      connection.release(); // Release the connection
+
+      if (err) {
+        console.error('Error inserting user', err);
+        return res.status(500).send('Database error');
       }
-    });
-  })
-}
 
+      // Generate JWT token for the newly registered user
+      const accessToken = sign({ email }, process.env.JWT_TOKEN, { expiresIn: '1h' }); // Example with 1-hour expiration
+
+      // Set JWT token as a cookie
+      res.cookie('accessToken', accessToken, { httpOnly: true });
+
+      // Redirect to /flavor route
+      res.redirect('/flavor');
+    });
+  });
+};
 
 module.exports.loginPost = (req, res) => {
   const { email, password } = req.body;
@@ -66,7 +93,7 @@ module.exports.loginPost = (req, res) => {
 
       if (isValidPassword) {
         const accessToken = sign(user, process.env.JWT_TOKEN, { expiresIn: '1h' }); // Token expires in 1 hour
-        res.cookie('accessToken', accessToken, { maxAge: maxAge, httpOnly: true });
+        res.cookie('accessToken', accessToken, { httpOnly: true });
         console.log("Token created by the login method: " +  accessToken);
         res.redirect("/flavor");
       } else {

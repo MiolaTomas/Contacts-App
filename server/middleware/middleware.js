@@ -12,7 +12,6 @@ const validateToken = (req, res, next) => {
         req.authenticated = true;
         next();
       }
-      
   } catch (err) {
       return res.status(400).send('Invalid Token');
   }

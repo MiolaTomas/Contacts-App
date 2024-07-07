@@ -19,7 +19,6 @@ app.set('view engine', '.hbs');
 
 require('dotenv').config();
 
-const { validateToken } = require('./server/middleware/middleware');
 
 const flavours = require('./server/routes/flavours');
 app.use('/', flavours);
