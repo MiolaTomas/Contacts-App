@@ -103,3 +103,8 @@ module.exports.loginPost = (req, res) => {
     });
   });
 };
+
+module.exports.logout = (req, res) => {
+  res.clearCookie('accessToken');
+  res.redirect('/signup');
+}

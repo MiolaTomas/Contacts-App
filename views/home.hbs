@@ -1,55 +1,61 @@
 <div class="container-fluid">
+  <!-- Logout button placed at the top left -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Añadir contactos</h2>
+    <a href="/logout" class="btn btn-secondary">Logout</a>
+  </div>
+
   <div class="row">
     <div class="col"> <!-- This column is for your navigation -->
-     <form class="d-flex" role="search" method="POST" action="/" novalidate>
+      <form class="d-flex" role="search" method="POST" action="/" novalidate>
         <input class="form-control me-2" type="search" name="search" placeholder="Search" aria-label="Search">
         <button class="btn btn-outline-success" type="submit">Search</button>
       </form>
     </div>
-    <div class="col-auto"> <!-- This column is for the "Add flavour" button -->
+    <div class="col-auto">
+      <!-- This column is for the "Add flavour" button -->
       <div class="container-fluid pb-3">
-        <!-- Button trigger modal -->
-      <a href="/contacts/add" type="button" class="btn btn-primary">+ Add Contact</a>
+        <a href="/contacts/add" class="btn btn-primary">+ Add Contact</a>
       </div>
     </div>
   </div>
 
-{{#if alert}}
-<div class="alert alert-success" role="alert">
-  {{alert}}
+  {{#if alert}}
+  <div class="alert alert-success" role="alert">
+    {{alert}}
+  </div>
+  {{/if}}
+
+  {{#if delete}}
+  <div class="alert alert-danger" role="alert">
+    {{delete}}
+  </div>
+  {{/if}}
+
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Name</th>
+        <th scope="col">Address</th>
+        <th scope="col">Phone</th>
+        <th scope="col" class="text-end">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each rows}}
+      <tr>
+        <th scope="row">{{this.id}}</th>
+        <td>{{this.name}}</td>
+        <td>{{this.address}}</td>
+        <td>{{this.phone}}</td>
+        <td class="text-end">
+          <a href="/contacts/{{this.id}}" class="btn btn-primary">View</a>
+          <a href="contacts/edit/{{this.id}}" class="btn btn-secondary">Edit</a>
+          <a href="/contacts/delete/{{this.id}}" class="btn btn-danger">Delete</a>
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
 </div>
-{{/if}}
-
-{{#if delete}}
-<div class="alert alert-danger" role="alert">
-  {{delete}}
-</div>
-{{/if}}
-
-<table class="table table-bordered">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Name</th>
-      <th scope="col">Address</th>
-      <th scope="col">Phone</th>
-      <th scope="col" class="text-end">Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-
-    {{#each rows}}
-    <tr>
-      <th scope="row">{{this.id}}</th>
-      <td>{{this.name}}</td>
-      <td>{{this.address}}</td>
-      <td>{{this.phone}}</td>
-      <td class="text-end">
-        <a href="/contacts/{{this.id}}" type="button" class="btn btn-primary">View</a>
-        <a href="contacts/edit/{{this.id}}" type="button" class="btn btn-secondary">Edit</a>
-        <a href="/contacts/delete/{{this.id}}" type="button" class="btn btn-danger">Delete</a>
-      </td>
-    </tr>
-    {{/each}}
-  </tbody>
-</table>
