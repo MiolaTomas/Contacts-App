@@ -9,7 +9,6 @@ const pool = mysql.createPool({
 });
 
 // View Flavours
-
 exports.view = (req, res) =>{
     //Connect to DB
     pool.getConnection((err, connection) =>{
@@ -17,14 +16,14 @@ exports.view = (req, res) =>{
       console.log('Connected as ID ' + connection.threadId);
 
       // Flavour connection
-      connection.query('SELECT * FROM Flavors', (err, rows) =>{
+      connection.query('SELECT * FROM contacts', (err, rows) =>{
         connection.release();
         if(!err){
           res.render('home', { rows });
         }else{
           console.log(err);
         }
-        console.log("Data from flavors table:");
+        console.log("Data from contacts table:");
         console.log(rows);
       });
     })
@@ -37,7 +36,7 @@ exports.find = (req, res) =>{
     console.log('Connected as ID ' + connection.threadId);
     let searchTerm = req.body.search;
     // Flavour connection
-    connection.query('SELECT * FROM Flavors WHERE nombre LIKE ?', ['%' + searchTerm + '%'], (err, rows) =>{
+    connection.query('SELECT * FROM contacts WHERE name LIKE ?', ['%' + searchTerm + '%'], (err, rows) =>{
       connection.release();
       if(!err){
         res.render('home', { rows });
@@ -51,18 +50,18 @@ exports.find = (req, res) =>{
 }
 
 exports.create = (req, res) =>{
-  const { nombre } = req.body;
-  if (!nombre) {
-    return res.render('add-flavor', { danger: 'Flavor name cannot be empty!' });
+  const { name, address, phone } = req.body;
+  if (!name || !address || !phone) {
+    return res.render('add-contact', { danger: 'Name can not be empty' });
   }
   pool.getConnection((err, connection) =>{
     if(err) throw err; // not connected!
     console.log('Connected as ID ' + connection.threadId);
     // Flavour connection
-    connection.query('INSERT INTO Flavors SET nombre = ?', [nombre],(err, rows) =>{
+    connection.query('INSERT INTO contacts SET name = ?, address = ?, phone = ?', [name, address, phone], (err, rows) => {
       connection.release();
       if(!err){
-        res.render('add-flavor', { alert: 'User added successfully!'});
+        res.render('add-contact', { alert: 'User added successfully!'});
       }else{
         console.log(err);
       }
@@ -71,7 +70,7 @@ exports.create = (req, res) =>{
 }
 
 exports.form = (req, res) =>{
-  res.render('add-flavor');
+  res.render('add-contact');
 }
 
 
@@ -81,10 +80,10 @@ exports.edit = (req, res) =>{
     console.log('Connected as ID ' + connection.threadId);
 
     // Flavour connection
-    connection.query('SELECT * FROM Flavors WHERE id_sabor = ?', [req.params.id], (err, rows) =>{
+    connection.query('SELECT * FROM contacts WHERE id = ?', [req.params.id], (err, rows) =>{
       connection.release();
       if(!err){
-        res.render('edit-flavor', { rows });
+        res.render('edit-contact', { rows });
       }else{
         console.log(err);
       }
@@ -123,40 +122,41 @@ exports.edit = (req, res) =>{
 
 //Update
 exports.update = (req, res) => {
-  const { nombre } = req.body;
+  const { name, address, phone } = req.body;
 
   // Check if nombre is empty
-  if (!nombre) {
-    return res.render('edit-flavor', { danger: 'Flavor name cannot be empty!' });
+  if (!name) {
+    return res.render('edit-contact', { danger: 'Name cannot be empty!' });
   }
 
   // Get a connection from the pool
   pool.getConnection((err, connection) => {
     if (err) {
       console.error('Error connecting to database:', err);
-      return res.render('edit-flavor', { danger: 'Database connection error!' });
+      return res.render('edit-contact', { danger: 'Database connection error!' });
     }
 
     // Perform update query
-    connection.query('UPDATE Flavors SET nombre = ? WHERE id_sabor = ?', [nombre, req.params.id], (err, updateResult) => {
+    connection.query('UPDATE contacts SET name = ?, address = ?, phone = ?  WHERE id = ?', [name, address, phone, req.params.id], (err, updateResult) => {
+
       connection.release(); // Release the connection
 
       if (err) {
-        console.error('Error updating flavor:', err);
-        return res.render('edit-flavor', { danger: 'Error updating flavor!' });
+        console.error('Error updating contact:', err);
+        return res.render('edit-contact', { danger: 'Error updating contact!' });
       }
 
       // Query the updated flavor
-      connection.query('SELECT * FROM Flavors WHERE id_sabor = ?', [req.params.id], (err, selectResult) => {
+      connection.query('SELECT * FROM contacts WHERE id = ?', [req.params.id], (err, selectResult) => {
         connection.release(); // Release the connection
 
         if (err) {
           console.error('Error selecting flavor:', err);
-          return res.render('edit-flavor', { danger: 'Error retrieving updated flavor!' });
+          return res.render('edit-contact', { danger: 'Error retrieving updated contact!' });
         }
 
         // Render the edit-flavor template with the updated rows
-        res.render('edit-flavor', { rows: selectResult , alert: 'User updated successfully!'});
+        res.render('edit-contact', { rows: selectResult , alert: 'User updated successfully!'});
       });
     });
   });
@@ -169,10 +169,10 @@ exports.delete = (req, res) =>{
     console.log('Connected as ID ' + connection.threadId);
 
     // Flavour connection
-    connection.query('DELETE FROM Flavors WHERE id_sabor = ?', [req.params.id], (err, rows) =>{
+    connection.query('DELETE FROM contacts WHERE id = ?', [req.params.id], (err, rows) =>{
       connection.release();
       if(!err){
-        res.redirect('/flavor');
+        res.redirect('/contacts');
       }else{
         console.log(err);
       }
@@ -190,14 +190,14 @@ exports.individualView = (req, res) =>{
     console.log('Connected as ID ' + connection.threadId);
 
     // Flavour connection
-    connection.query('SELECT * FROM Flavors WHERE id_sabor = ?', [req.params.id], (err, rows) =>{
+    connection.query('SELECT * FROM contacts WHERE id = ?', [req.params.id], (err, rows) =>{
       connection.release();
       if(!err){
-        res.render('view-flavor', { rows });
+        res.render('view-contact', { rows });
       }else{
         console.log(err);
       }
-      console.log("Data from flavors table:");
+      console.log("Data from Contacts table:");
       console.log(rows);
     });
   })

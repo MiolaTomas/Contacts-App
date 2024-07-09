@@ -1,7 +1,7 @@
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/flavor">Home</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Edit Flavor</li>
+    <li class="breadcrumb-item"><a href="/contacts">Home</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Edit Contact</li>
   </ol>
 </nav>
 
@@ -18,7 +18,7 @@
 {{/if}}
 
 {{#each rows}}
-<form method="POST" action="/flavor/edit/{{this.id_sabor}}" novalidate>
-  {{> flavor-form}}
+<form method="POST" action="/contacts/edit/{{this.id}}" novalidate>
+  {{> contacts-form}}
 </form> 
 {{/each}}

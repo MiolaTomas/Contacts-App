@@ -7,6 +7,7 @@ const port = process.env.PORT || 3000;
 const app = express();
 
 
+
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(cookieParser());
@@ -20,8 +21,8 @@ app.set('view engine', '.hbs');
 require('dotenv').config();
 
 
-const flavours = require('./server/routes/flavours');
-app.use('/', flavours);
+const contacts = require('./server/routes/contactsRoutes');
+app.use('/', contacts);
 
 const authRoutes = require('./server/routes/authRoutes');
 app.use('/', authRoutes);

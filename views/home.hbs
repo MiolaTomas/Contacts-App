@@ -9,7 +9,7 @@
     <div class="col-auto"> <!-- This column is for the "Add flavour" button -->
       <div class="container-fluid pb-3">
         <!-- Button trigger modal -->
-      <a href="/flavor/add" type="button" class="btn btn-primary">+ Add flavour</a>
+      <a href="/contacts/add" type="button" class="btn btn-primary">+ Add Contact</a>
       </div>
     </div>
   </div>
@@ -30,7 +30,9 @@
   <thead>
     <tr>
       <th scope="col">#</th>
-      <th scope="col">Nombre</th>
+      <th scope="col">Name</th>
+      <th scope="col">Address</th>
+      <th scope="col">Phone</th>
       <th scope="col" class="text-end">Actions</th>
     </tr>
   </thead>
@@ -38,12 +40,14 @@
 
     {{#each rows}}
     <tr>
-      <th scope="row">{{this.id_sabor}}</th>
-      <td>{{this.nombre}}</td>
+      <th scope="row">{{this.id}}</th>
+      <td>{{this.name}}</td>
+      <td>{{this.address}}</td>
+      <td>{{this.phone}}</td>
       <td class="text-end">
-        <a href="/flavor/{{this.id_sabor}}" type="button" class="btn btn-primary">View</a>
-        <a href="flavor/edit/{{this.id_sabor}}" type="button" class="btn btn-secondary">Edit</a>
-        <a href="/flavor/delete/{{this.id_sabor}}" type="button" class="btn btn-danger">Delete</a>
+        <a href="/contacts/{{this.id}}" type="button" class="btn btn-primary">View</a>
+        <a href="contacts/edit/{{this.id}}" type="button" class="btn btn-secondary">Edit</a>
+        <a href="/contacts/delete/{{this.id}}" type="button" class="btn btn-danger">Delete</a>
       </td>
     </tr>
     {{/each}}
