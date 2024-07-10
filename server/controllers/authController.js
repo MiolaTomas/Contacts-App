@@ -35,34 +35,70 @@ module.exports.loginGet = (req, res) =>{
 //     });
 //   })
 // }
-module.exports.signupPost = (req, res) => {
+module.exports.signupPost = async (req, res) => {
   const { email, password } = req.body;
   const hashedPassword = bcrypt.hashSync(password, 10);
 
-  pool.getConnection((err, connection) => {
-    if (err) {
-      console.error('Error getting connection from pool', err);
-      return res.status(500).send('Database error');
-    }
+  try {
+    // Step 1: Insert new user into the database
+    const insertResult = await new Promise((resolve, reject) => {
+      pool.getConnection((err, connection) => {
+        if (err) {
+          console.error('Error getting connection from pool', err);
+          return reject(err);
+        }
 
-    connection.query('INSERT INTO users SET email = ?, password = ?', [email, hashedPassword], (err, rows) => {
-      connection.release(); // Release the connection
+        connection.query('INSERT INTO users SET ?', { email, password: hashedPassword }, (err, result) => {
+          connection.release(); // Release the connection
 
-      if (err) {
-        console.error('Error inserting user', err);
-        return res.status(500).send('Database error');
-      }
+          if (err) {
+            console.error('Error inserting user', err);
+            return reject(err);
+          }
 
-      // Generate JWT token for the newly registered user
-      const accessToken = sign({ email }, process.env.JWT_TOKEN, { expiresIn: '1h' }); // Example with 1-hour expiration
-
-      // Set JWT token as a cookie
-      res.cookie('accessToken', accessToken, { httpOnly: true });
-
-      // Redirect to /flavor route
-      res.redirect('/flavor');
+          resolve(result);
+        });
+      });
     });
-  });
+
+    // Step 2: Select user by email (for debugging/logging purposes)
+    const selectResult = await new Promise((resolve, reject) => {
+      pool.getConnection((err, connection) => {
+        if (err) {
+          console.error('Error getting connection from pool', err);
+          return reject(err);
+        }
+
+        connection.query('SELECT * FROM users WHERE email = ?', [email], (err, rows) => {
+          connection.release(); // Release the connection
+
+          if (err) {
+            console.error('Error selecting user', err);
+            return reject(err);
+          }
+
+          resolve(rows[0].id);
+        });
+      });
+    });
+    // Log the inserted and selected user
+    console.log('Inserted user:', insertResult);
+    console.log('Selected user:', selectResult);
+
+    // Generate JWT token for the newly registered user
+    const accessToken = sign({ email }, process.env.JWT_TOKEN, { expiresIn: '1h' }); // Example with 1-hour expiration
+
+    // Set JWT token as a cookie
+    res.cookie('accessToken', accessToken, { httpOnly: true });
+    res.cookie('user', selectResult, { httpOnly: true });
+
+    // Redirect to /flavor route
+    res.redirect('/contacts');
+  } catch (error) {
+    // Handle any errors that occurred during the async operations
+    console.error('Error in signup process', error);
+    res.status(500).send('Database error');
+  }
 };
 
 module.exports.loginPost = (req, res) => {
@@ -86,13 +122,16 @@ module.exports.loginPost = (req, res) => {
         return res.status(401).send('User not found');
       }
 
-      const user = results[0]; // Assuming email is unique, we take the first result
+      const user_jwt = results[0];
+      const user = results[0].id;
+      res.cookie('user', user, { httpOnly: true });
+      console.log(user); 
 
       // Compare hashed password with plaintext password
-      const isValidPassword = bcrypt.compareSync(password, user.password);
+      const isValidPassword = bcrypt.compareSync(password, user_jwt.password);
 
       if (isValidPassword) {
-        const accessToken = sign(user, process.env.JWT_TOKEN, { expiresIn: '1h' }); // Token expires in 1 hour
+        const accessToken = sign(user_jwt, process.env.JWT_TOKEN, { expiresIn: '1h' }); // Token expires in 1 hour
         res.cookie('accessToken', accessToken, { httpOnly: true });
         console.log("Token created by the login method: " +  accessToken);
         res.redirect("/flavor");
@@ -106,5 +145,6 @@ module.exports.loginPost = (req, res) => {
 
 module.exports.logout = (req, res) => {
   res.clearCookie('accessToken');
+  res.clearCookie('user');
   res.redirect('/signup');
 }

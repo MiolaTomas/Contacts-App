@@ -5,13 +5,12 @@ const { validateToken } = require('../middleware/middleware');
 
 
 router.get("/contacts", validateToken, contactsController.view);
-router.post("/",  contactsController.find);
-router.get("/contacts/add", contactsController.form);
-router.post("/contacts/add", contactsController.create);
-router.get("/contacts/edit/:id", contactsController.edit);
-router.post("/contacts/edit/:id", contactsController.update);
-router.get("/contacts/delete/:id", contactsController.delete);
-
+router.post("/",validateToken, contactsController.find);
+router.get("/contacts/add",validateToken, contactsController.form);
+router.post("/contacts/add",  validateToken,contactsController.create);
+router.get("/contacts/edit/:id", validateToken, contactsController.edit);
+router.post("/contacts/edit/:id", validateToken, contactsController.update);
+router.get("/contacts/delete/:id", validateToken, contactsController.delete);
 
 router.get("/contacts/:id", contactsController.individualView);
 

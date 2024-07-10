@@ -10,13 +10,14 @@ const pool = mysql.createPool({
 
 // View Flavours
 exports.view = (req, res) =>{
+  const user = req.cookies.user;
     //Connect to DB
     pool.getConnection((err, connection) =>{
       if(err) throw err; // not connected!
       console.log('Connected as ID ' + connection.threadId);
 
       // Flavour connection
-      connection.query('SELECT * FROM contacts', (err, rows) =>{
+      connection.query('SELECT * FROM contacts WHERE id_user = ?' ,[user], (err, rows) =>{
         connection.release();
         if(!err){
           res.render('home', { rows });
@@ -25,7 +26,7 @@ exports.view = (req, res) =>{
         }
         console.log("Data from contacts table:");
         console.log(rows);
-      });
+      });   
     })
 }
 
@@ -51,6 +52,7 @@ exports.find = (req, res) =>{
 
 exports.create = (req, res) =>{
   const { name, address, phone } = req.body;
+  const user = req.cookies.user;
   if (!name || !address || !phone) {
     return res.render('add-contact', { danger: 'Name can not be empty' });
   }
@@ -58,7 +60,7 @@ exports.create = (req, res) =>{
     if(err) throw err; // not connected!
     console.log('Connected as ID ' + connection.threadId);
     // Flavour connection
-    connection.query('INSERT INTO contacts SET name = ?, address = ?, phone = ?', [name, address, phone], (err, rows) => {
+    connection.query('INSERT INTO contacts SET name = ?, address = ?, phone = ?, id_user = ?', [name, address, phone, user], (err, rows) => {
       connection.release();
       if(!err){
         res.render('add-contact', { alert: 'User added successfully!'});
