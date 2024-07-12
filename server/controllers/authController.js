@@ -5,11 +5,11 @@ const jwt = require('jsonwebtoken');
 
 const pool = mysql.createPool({
   connectionLimit: 100,
-  host: 'localhost',
-  port: '3308',
-  user: 'root',
-  password: 'root',
-  database: 'contacts'
+  host: process.env.HOST,
+  port: process.env.PORT,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: process.env.DATABASE
 });
 
 module.exports.signupGet = (req, res) =>{
