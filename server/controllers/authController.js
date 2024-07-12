@@ -1,13 +1,15 @@
 const mysql = require('mysql2');
 const bcrypt = require('bcrypt');
 const { sign, verify} = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 
 const pool = mysql.createPool({
   connectionLimit: 100,
   host: 'localhost',
+  port: '3308',
   user: 'root',
   password: 'root',
-  database: 'products'
+  database: 'contacts'
 });
 
 module.exports.signupGet = (req, res) =>{
@@ -34,72 +36,47 @@ module.exports.loginGet = (req, res) =>{
 //       }
 //     });
 //   })
-// }
-module.exports.signupPost = async (req, res) => {
+
+// POST /register - Register a new user and generate JWT
+module.exports.signupPost =  async (req, res) => {
   const { email, password } = req.body;
-  const hashedPassword = bcrypt.hashSync(password, 10);
-
   try {
-    // Step 1: Insert new user into the database
-    const insertResult = await new Promise((resolve, reject) => {
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Insert new user into MySQL database
       pool.getConnection((err, connection) => {
-        if (err) {
-          console.error('Error getting connection from pool', err);
-          return reject(err);
-        }
-
-        connection.query('INSERT INTO users SET ?', { email, password: hashedPassword }, (err, result) => {
-          connection.release(); // Release the connection
-
           if (err) {
-            console.error('Error inserting user', err);
-            return reject(err);
+              throw err;
           }
 
-          resolve(result);
-        });
+          connection.query('INSERT INTO users (email, password) VALUES (?, ?)', [email, hashedPassword], (err, rows) => {
+              connection.release(); // Release connection
+              if (err) {
+                  console.error(err);
+                  return res.status(400).send('Error, user not created');
+              }
+
+              // Generate JWT token with userId
+              const userId = rows.insertId; // Get auto-generated userId
+              const token = jwt.sign({ userId }, process.env.JWT_TOKEN, { expiresIn: '1h' });
+
+              // Set the token in an HTTP-only cookie
+              res.cookie('accessToken', token, {
+                httpOnly: true,
+                maxAge: 3600000 // 1 hour
+              });
+
+              // res.json({ token, userId });
+              res.redirect('/contacts');
+          });
       });
-    });
-
-    // Step 2: Select user by email (for debugging/logging purposes)
-    const selectResult = await new Promise((resolve, reject) => {
-      pool.getConnection((err, connection) => {
-        if (err) {
-          console.error('Error getting connection from pool', err);
-          return reject(err);
-        }
-
-        connection.query('SELECT * FROM users WHERE email = ?', [email], (err, rows) => {
-          connection.release(); // Release the connection
-
-          if (err) {
-            console.error('Error selecting user', err);
-            return reject(err);
-          }
-
-          resolve(rows[0].id);
-        });
-      });
-    });
-    // Log the inserted and selected user
-    console.log('Inserted user:', insertResult);
-    console.log('Selected user:', selectResult);
-
-    // Generate JWT token for the newly registered user
-    const accessToken = sign({ email }, process.env.JWT_TOKEN, { expiresIn: '1h' }); // Example with 1-hour expiration
-
-    // Set JWT token as a cookie
-    res.cookie('accessToken', accessToken, { httpOnly: true });
-    res.cookie('user', selectResult, { httpOnly: true });
-
-    // Redirect to /flavor route
-    res.redirect('/contacts');
   } catch (error) {
-    // Handle any errors that occurred during the async operations
-    console.error('Error in signup process', error);
-    res.status(500).send('Database error');
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 module.exports.loginPost = (req, res) => {
   const { email, password } = req.body;
@@ -123,18 +100,16 @@ module.exports.loginPost = (req, res) => {
       }
 
       const user_jwt = results[0];
-      const user = results[0].id;
-      res.cookie('user', user, { httpOnly: true });
-      console.log(user); 
+      const userId = results[0].id;
 
       // Compare hashed password with plaintext password
       const isValidPassword = bcrypt.compareSync(password, user_jwt.password);
 
       if (isValidPassword) {
-        const accessToken = sign(user_jwt, process.env.JWT_TOKEN, { expiresIn: '1h' }); // Token expires in 1 hour
-        res.cookie('accessToken', accessToken, { httpOnly: true });
-        console.log("Token created by the login method: " +  accessToken);
-        res.redirect("/flavor");
+        const token = jwt.sign({ userId }, process.env.JWT_TOKEN, { expiresIn: '1h' });
+        res.cookie('accessToken', token, { httpOnly: true });
+        console.log("Token created by the login method: " +  token);
+        res.redirect("/contacts");
       } else {
         // Passwords do not match
         res.status(401).send('Invalid password');
